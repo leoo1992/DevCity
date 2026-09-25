@@ -469,21 +469,18 @@ export function DevCityApp() {
   }, [input]);
 
   useEffect(() => {
-    if (!repositoryQuery) {
-      setRepositoryOptions([]);
-      setRepositoryLoading(false);
-      return;
-    }
-
-    const cached = repositoryCache.current.get(repositoryQuery.owner);
-    if (cached) {
-      setRepositoryOptions(cached);
-      setRepositoryLoading(false);
-      return;
-    }
+    if (!repositoryQuery) return;
 
     let cancelled = false;
+    const cached = repositoryCache.current.get(repositoryQuery.owner);
+
     const timer = window.setTimeout(async () => {
+      if (cached) {
+        setRepositoryOptions(cached);
+        setRepositoryLoading(false);
+        return;
+      }
+
       setRepositoryLoading(true);
 
       try {
@@ -502,7 +499,7 @@ export function DevCityApp() {
           setRepositoryLoading(false);
         }
       }
-    }, 220);
+    }, cached ? 0 : 220);
 
     return () => {
       cancelled = true;
