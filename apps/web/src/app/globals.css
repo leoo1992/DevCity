@@ -369,7 +369,7 @@ canvas {
     position: absolute;
     bottom: 0;
     left: calc(100% + 8px);
-    width: 94px;
+    width: 150px;
     color: rgba(161, 168, 181, .78);
     font-family: var(--font-mono), monospace;
     font-size: 12px;
