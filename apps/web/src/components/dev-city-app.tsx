@@ -7,9 +7,17 @@ import {
 } from '@react-three/drei';
 import {
   Canvas,
+  useFrame,
+  useThree,
   type ThreeEvent,
 } from '@react-three/fiber';
-import { useMemo, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentRef,
+} from 'react';
 import * as THREE from 'three';
 import {
   createCityModel,
@@ -20,7 +28,11 @@ import {
   type RepositorySnapshot,
 } from '@/lib/city';
 import { demoSnapshot } from '@/lib/demo';
-import { loadRepository } from '@/lib/github';
+import {
+  listOwnerRepositories,
+  loadRepository,
+  type RepositoryOption,
+} from '@/lib/github';
 import {
   hoverBuilding,
   resetUi,
@@ -155,6 +167,161 @@ function DistrictPlate({ district }: { district: CityDistrict }) {
   );
 }
 
+function CityNavigation({ cameraKey }: { cameraKey: number }) {
+  const controlsRef = useRef<ComponentRef<typeof OrbitControls>>(null);
+  const pressedKeys = useRef(new Set<string>());
+  const { camera } = useThree();
+
+  useEffect(() => {
+    const isTypingTarget = (target: EventTarget | null) =>
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement;
+
+    const navigationKeys = new Set([
+      'KeyW',
+      'KeyA',
+      'KeyS',
+      'KeyD',
+      'KeyQ',
+      'KeyE',
+      'ArrowUp',
+      'ArrowDown',
+      'ArrowLeft',
+      'ArrowRight',
+      'ShiftLeft',
+      'ShiftRight',
+    ]);
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (isTypingTarget(event.target) || !navigationKeys.has(event.code)) {
+        return;
+      }
+
+      event.preventDefault();
+      pressedKeys.current.add(event.code);
+    };
+
+    const onKeyUp = (event: KeyboardEvent) => {
+      pressedKeys.current.delete(event.code);
+    };
+
+    const onBlur = () => {
+      pressedKeys.current.clear();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', onBlur);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('blur', onBlur);
+    };
+  }, []);
+
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+
+    camera.position.set(24, 23, 28);
+    controls.target.set(0, 2.6, 0);
+    controls.update();
+  }, [camera, cameraKey]);
+
+  useFrame((_, delta) => {
+    const controls = controlsRef.current;
+    if (!controls || pressedKeys.current.size === 0) return;
+
+    const forwardAxis =
+      (pressedKeys.current.has('KeyW') ||
+      pressedKeys.current.has('ArrowUp')
+        ? 1
+        : 0) -
+      (pressedKeys.current.has('KeyS') ||
+      pressedKeys.current.has('ArrowDown')
+        ? 1
+        : 0);
+    const strafeAxis =
+      (pressedKeys.current.has('KeyD') ||
+      pressedKeys.current.has('ArrowRight')
+        ? 1
+        : 0) -
+      (pressedKeys.current.has('KeyA') ||
+      pressedKeys.current.has('ArrowLeft')
+        ? 1
+        : 0);
+    const verticalAxis =
+      (pressedKeys.current.has('KeyE') ? 1 : 0) -
+      (pressedKeys.current.has('KeyQ') ? 1 : 0);
+
+    if (forwardAxis === 0 && strafeAxis === 0 && verticalAxis === 0) {
+      return;
+    }
+
+    const forward = new THREE.Vector3();
+    camera.getWorldDirection(forward);
+    forward.y = 0;
+
+    if (forward.lengthSq() < 0.0001) {
+      forward.set(0, 0, -1);
+    }
+
+    forward.normalize();
+
+    const right = new THREE.Vector3()
+      .crossVectors(forward, camera.up)
+      .normalize();
+
+    const movement = new THREE.Vector3()
+      .addScaledVector(forward, forwardAxis)
+      .addScaledVector(right, strafeAxis);
+
+    if (movement.lengthSq() > 0) {
+      movement.normalize();
+    }
+
+    movement.y = verticalAxis;
+
+    if (movement.lengthSq() === 0) return;
+
+    const boosted =
+      pressedKeys.current.has('ShiftLeft') ||
+      pressedKeys.current.has('ShiftRight');
+    const speed = (boosted ? 19 : 8.5) * delta;
+
+    movement.multiplyScalar(speed);
+    camera.position.add(movement);
+    controls.target.add(movement);
+    controls.update();
+  });
+
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      makeDefault
+      enableDamping
+      enablePan
+      screenSpacePanning
+      dampingFactor={0.07}
+      minDistance={2.5}
+      maxDistance={90}
+      maxPolarAngle={Math.PI / 2.02}
+      target={[0, 2.6, 0]}
+      mouseButtons={{
+        LEFT: THREE.MOUSE.ROTATE,
+        MIDDLE: THREE.MOUSE.DOLLY,
+        RIGHT: THREE.MOUSE.PAN,
+      }}
+      touches={{
+        ONE: THREE.TOUCH.ROTATE,
+        TWO: THREE.TOUCH.DOLLY_PAN,
+      }}
+    />
+  );
+}
+
 function CityScene({
   snapshot,
   cameraKey,
@@ -162,6 +329,82 @@ function CityScene({
   snapshot: RepositorySnapshot;
   cameraKey: number;
 }) {
+  const repositoryQuery = useMemo(() => {
+    const cleaned = input
+      .trim()
+      .replace(/^https?:\/\/github\.com\//i, '')
+      .replace(/^github\.com\//i, '')
+      .replace(/^\/+/, '');
+    const separator = cleaned.indexOf('/');
+
+    if (separator <= 0) {
+      return null;
+    }
+
+    const owner = cleaned.slice(0, separator);
+    const term = cleaned.slice(separator + 1).toLowerCase();
+
+    if (!/^[A-Za-z0-9_.-]+$/.test(owner)) {
+      return null;
+    }
+
+    return { owner, term };
+  }, [input]);
+
+  useEffect(() => {
+    if (!repositoryQuery) {
+      setRepositoryOptions([]);
+      setRepositoryLoading(false);
+      return;
+    }
+
+    const cached = repositoryCache.current.get(repositoryQuery.owner);
+    if (cached) {
+      setRepositoryOptions(cached);
+      setRepositoryLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      setRepositoryLoading(true);
+
+      try {
+        const repositories = await listOwnerRepositories(repositoryQuery.owner);
+
+        if (cancelled) return;
+
+        repositoryCache.current.set(repositoryQuery.owner, repositories);
+        setRepositoryOptions(repositories);
+      } catch {
+        if (!cancelled) {
+          setRepositoryOptions([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setRepositoryLoading(false);
+        }
+      }
+    }, 220);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [repositoryQuery]);
+
+  const filteredRepositoryOptions = useMemo(() => {
+    if (!repositoryQuery) return [];
+
+    const term = repositoryQuery.term;
+
+    return repositoryOptions
+      .filter((repository) =>
+        !term || repository.name.toLowerCase().includes(term),
+      )
+      .slice(0, 9);
+  }, [repositoryOptions, repositoryQuery]);
+
   const model = useMemo(() => createCityModel(snapshot), [snapshot]);
   const dispatch = useAppDispatch();
   const query = useAppSelector((state) => state.cityUi.query)
@@ -236,16 +479,7 @@ function CityScene({
         <meshStandardMaterial color="#090c11" roughness={1} />
       </mesh>
 
-      <OrbitControls
-        key={cameraKey}
-        makeDefault
-        enableDamping
-        dampingFactor={0.07}
-        minDistance={8}
-        maxDistance={75}
-        maxPolarAngle={Math.PI / 2.06}
-        target={[0, 2.6, 0]}
-      />
+      <CityNavigation cameraKey={cameraKey} />
     </>
   );
 }
@@ -278,7 +512,11 @@ export function DevCityApp() {
   );
   const colorMode = useAppSelector((state) => state.cityUi.colorMode);
   const [snapshot, setSnapshot] = useState<RepositorySnapshot>(demoSnapshot);
-  const [input, setInput] = useState('leoo1992/DevCity');
+  const [input, setInput] = useState('leoo1992/');
+  const [repositoryOptions, setRepositoryOptions] = useState<RepositoryOption[]>([]);
+  const [repositoryMenuOpen, setRepositoryMenuOpen] = useState(false);
+  const [repositoryLoading, setRepositoryLoading] = useState(false);
+  const repositoryCache = useRef(new Map<string, RepositoryOption[]>());
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState('DEMO CITY');
   const [error, setError] = useState<string | null>(null);
@@ -289,18 +527,25 @@ export function DevCityApp() {
     (building) => building.path === selectedPath,
   );
 
-  const analyze = async () => {
+  const analyze = async (targetRepository = input) => {
+    if (!targetRepository.trim() || targetRepository.trim().endsWith('/')) {
+      setRepositoryMenuOpen(true);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setNotice('SCANNING REPOSITORY');
     dispatch(resetUi());
 
     try {
-      const nextSnapshot = await loadRepository(input);
+      const nextSnapshot = await loadRepository(targetRepository);
       setSnapshot(nextSnapshot);
       setNotice(
         nextSnapshot.truncated ? 'CITY READY · TREE TRUNCATED' : 'CITY READY',
       );
+      setInput(nextSnapshot.owner + '/' + nextSnapshot.repo);
+      setRepositoryMenuOpen(false);
       setCameraKey((value) => value + 1);
     } catch (reason) {
       setError(
@@ -339,10 +584,15 @@ export function DevCityApp() {
           </a>
 
           <form
-            className="mx-auto flex min-w-0 max-w-2xl flex-1 items-center rounded-xl border border-white/10 bg-black/20 p-1"
+            className="relative mx-auto flex min-w-0 max-w-2xl flex-1 items-center rounded-xl border border-white/10 bg-black/20 p-1"
             onSubmit={(event) => {
               event.preventDefault();
               void analyze();
+            }}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) {
+                setRepositoryMenuOpen(false);
+              }
             }}
           >
             <span className="hidden px-2 font-mono text-[9px] text-[#b5ff55] md:block">
@@ -351,9 +601,20 @@ export function DevCityApp() {
             <input
               className="min-w-0 flex-1 bg-transparent px-2 py-2 text-[11px] text-white outline-none placeholder:text-zinc-600"
               value={input}
-              onChange={(event) => setInput(event.target.value)}
+              onChange={(event) => {
+                setInput(event.target.value);
+                setRepositoryMenuOpen(true);
+              }}
+              onFocus={() => {
+                if (repositoryQuery) setRepositoryMenuOpen(true);
+              }}
               placeholder="owner/repository"
               aria-label="Repositório GitHub"
+              role="combobox"
+              aria-expanded={repositoryMenuOpen && Boolean(repositoryQuery)}
+              aria-controls="repository-options"
+              aria-autocomplete="list"
+              autoComplete="off"
             />
             <button
               className="rounded-lg bg-[#b5ff55] px-4 py-2 text-[9px] font-bold uppercase tracking-[.08em] text-[#071006] transition hover:bg-[#c8ff7c] disabled:cursor-wait disabled:opacity-60"
@@ -362,6 +623,66 @@ export function DevCityApp() {
             >
               {loading ? 'Scanning…' : 'Build city'}
             </button>
+
+            {repositoryMenuOpen && repositoryQuery ? (
+              <div
+                id="repository-options"
+                className="absolute left-0 right-0 top-[calc(100%+8px)] z-[80] overflow-hidden rounded-xl border border-white/10 bg-[#0b0e14]/98 shadow-2xl backdrop-blur-xl"
+              >
+                <div className="flex items-center justify-between gap-3 border-b border-white/[.08] px-3 py-2.5">
+                  <span className="font-mono text-[7px] uppercase tracking-[.12em] text-zinc-500">
+                    {repositoryQuery.owner} / repositories
+                  </span>
+                  <span className="font-mono text-[7px] text-zinc-600">
+                    {repositoryLoading
+                      ? 'loading…'
+                      : repositoryOptions.length + ' found'}
+                  </span>
+                </div>
+
+                <div className="max-h-[330px] overflow-y-auto p-1.5">
+                  {repositoryLoading ? (
+                    <div className="px-3 py-5 text-center font-mono text-[8px] uppercase tracking-[.1em] text-zinc-600">
+                      Buscando repositórios…
+                    </div>
+                  ) : filteredRepositoryOptions.length > 0 ? (
+                    filteredRepositoryOptions.map((repository) => (
+                      <button
+                        key={repository.fullName}
+                        type="button"
+                        className="grid w-full grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-white/[.055] focus:bg-white/[.055] focus:outline-none"
+                        onClick={() => {
+                          setInput(repository.fullName);
+                          setRepositoryMenuOpen(false);
+                          void analyze(repository.fullName);
+                        }}
+                      >
+                        <span className="min-w-0">
+                          <strong className="block truncate text-[10px] text-white">
+                            {repository.name}
+                          </strong>
+                          <small className="mt-1 block truncate text-[8px] text-zinc-500">
+                            {repository.description ?? 'Sem descrição'}
+                          </small>
+                        </span>
+                        <span className="flex items-center gap-2 font-mono text-[7px] text-zinc-500">
+                          {repository.language ? (
+                            <i className="not-italic text-zinc-400">
+                              {repository.language}
+                            </i>
+                          ) : null}
+                          <b className="font-normal">★ {repository.stars}</b>
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-5 text-center text-[9px] text-zinc-600">
+                      Nenhum repositório encontrado.
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
           </form>
 
           <div className="hidden items-center gap-2 font-mono text-[8px] uppercase tracking-[.1em] text-zinc-500 xl:flex">
@@ -440,6 +761,16 @@ export function DevCityApp() {
         </div>
 
         <div className="absolute inset-x-0 bottom-0 top-[136px]">
+          <div className="pointer-events-none absolute bottom-4 left-1/2 z-20 hidden -translate-x-1/2 rounded-xl border border-white/10 bg-[#090c12]/78 px-3 py-2 font-mono text-[7px] uppercase tracking-[.08em] text-zinc-500 shadow-xl backdrop-blur-md md:block">
+            <span className="text-zinc-300">WASD / ARROWS</span> mover
+            <i className="mx-2 text-zinc-700">·</i>
+            <span className="text-zinc-300">Q / E</span> altura
+            <i className="mx-2 text-zinc-700">·</i>
+            <span className="text-zinc-300">SHIFT</span> turbo
+            <i className="mx-2 text-zinc-700">·</i>
+            mouse direito pan
+          </div>
+
           <Canvas
             shadows
             dpr={[1, 1.75]}
