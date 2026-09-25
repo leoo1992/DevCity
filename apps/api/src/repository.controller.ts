@@ -18,6 +18,15 @@ export class RepositoryController {
     };
   }
 
+  @Get('repositories')
+  async repositories(@Query('owner') owner?: string) {
+    if (!owner) {
+      throw new BadRequestException('Informe owner=usuario.');
+    }
+
+    return this.repositoryService.listRepositories(owner);
+  }
+
   @Get('repository')
   async repository(@Query('repo') repo?: string) {
     if (!repo) {
