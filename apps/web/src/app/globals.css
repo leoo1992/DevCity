@@ -48,7 +48,7 @@ canvas {
   border-radius: 5px;
   background: rgba(7, 9, 13, 0.62);
   font-family: var(--font-mono), monospace;
-  font-size: 6px;
+  font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.12em;
   white-space: nowrap;
@@ -173,7 +173,7 @@ canvas {
   .build-city-button {
     min-height: 36px;
     padding-inline: 11px;
-    font-size: 7px;
+    font-size: 13px;
     white-space: nowrap;
   }
 
@@ -230,7 +230,7 @@ canvas {
     min-height: 34px;
     align-items: center;
     padding-inline: 9px;
-    font-size: 6.5px;
+    font-size: 9px;
   }
 
   .reset-view-button {
@@ -245,7 +245,7 @@ canvas {
 
   .reset-view-button::after {
     content: "↺";
-    font-size: 15px;
+    font-size: 19px;
     line-height: 1;
   }
 
@@ -259,7 +259,7 @@ canvas {
 
   .district-label {
     padding: 2px 4px;
-    font-size: 5px;
+    font-size: 11px;
   }
 
   .mobile-navigation {
@@ -372,7 +372,7 @@ canvas {
     width: 94px;
     color: rgba(161, 168, 181, .78);
     font-family: var(--font-mono), monospace;
-    font-size: 6px;
+    font-size: 9px;
     line-height: 1.45;
     text-transform: uppercase;
     letter-spacing: .07em;
@@ -438,7 +438,7 @@ canvas {
     border-radius: 7px;
     background: transparent;
     font-family: var(--font-mono), monospace;
-    font-size: 7px;
+    font-size: 10px;
     text-transform: uppercase;
     letter-spacing: .08em;
   }
@@ -509,7 +509,7 @@ canvas {
 
   .mobile-toolbar-button {
     padding-inline: 7px;
-    font-size: 6px;
+    font-size: 9px;
   }
 
   .mobile-navigation {
@@ -607,5 +607,57 @@ canvas {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Readability scale */
+@media (min-width: 721px) {
+  .devcity-header-inner {
+    min-height: 78px;
+  }
+
+  .city-stage {
+    padding-top: 78px;
+  }
+
+  .city-toolbar {
+    top: 78px;
+    min-height: 70px;
+  }
+
+  .city-canvas-shell {
+    top: 148px;
+  }
+
+  .city-index-panel {
+    width: min(360px, calc(100vw - 32px));
+  }
+
+  .building-inspector-panel {
+    width: min(390px, calc(100vw - 32px));
+  }
+
+  .repository-options button {
+    min-height: 56px;
+  }
+}
+
+@media (max-width: 720px) {
+  .repository-options button {
+    min-height: 54px;
+  }
+
+  .city-index-panel,
+  .building-inspector-panel {
+    line-height: 1.45;
+  }
+
+  .mobile-move-button {
+    font-size: 18px;
+  }
+
+  .mobile-altitude .mobile-move-button {
+    font-size: 20px;
   }
 }
