@@ -1,0 +1,21 @@
+{
+  "name": "devcity",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@11.6.0",
+  "workspaces": [
+    "apps/web",
+    "apps/api"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w @devcity/web",
+    "dev:api": "npm run dev -w @devcity/api",
+    "build": "npm run build -w @devcity/web && npm run build -w @devcity/api",
+    "typecheck": "npm run typecheck -w @devcity/web && npm run typecheck -w @devcity/api",
+    "lint": "npm run lint -w @devcity/web",
+    "test": "npm run test -w @devcity/web"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

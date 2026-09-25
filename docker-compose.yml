@@ -1,0 +1,21 @@
+services:
+  api:
+    build:
+      context: ./apps/api
+    environment:
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      PORT: 3001
+    ports:
+      - "3001:3001"
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api

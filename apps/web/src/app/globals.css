@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  background: #07090d;
+}
+
+body {
+  font-family: var(--font-sans), Arial, sans-serif;
+  overflow: hidden;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  color: #071006;
+  background: #b5ff55;
+}
+
+canvas {
+  display: block;
+  touch-action: none;
+}
+
+.district-label {
+  display: inline-flex;
+  padding: 3px 6px;
+  color: rgba(226, 232, 240, 0.66);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  background: rgba(7, 9, 13, 0.62);
+  font-family: var(--font-mono), monospace;
+  font-size: 6px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+
+.city-loader {
+  position: relative;
+  width: 44px;
+  height: 34px;
+  border-bottom: 2px solid #b5ff55;
+}
+
+.city-loader::before,
+.city-loader::after {
+  position: absolute;
+  bottom: 2px;
+  content: '';
+  background: #7d72ff;
+  animation: city-build 1.1s ease-in-out infinite alternate;
+}
+
+.city-loader::before {
+  left: 5px;
+  width: 8px;
+  height: 13px;
+}
+
+.city-loader::after {
+  right: 5px;
+  width: 8px;
+  height: 24px;
+  animation-delay: -.45s;
+}
+
+@keyframes city-build {
+  from {
+    transform: scaleY(.45);
+    transform-origin: bottom;
+    opacity: .45;
+  }
+  to {
+    transform: scaleY(1);
+    transform-origin: bottom;
+    opacity: 1;
+  }
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.14) transparent;
+}
+
+@media (max-width: 720px) {
+  body {
+    overflow: hidden;
+  }
+
+  main > aside:first-of-type {
+    bottom: 154px;
+    left: 10px;
+    width: 210px;
+  }
+
+  main > aside:nth-of-type(2) {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    width: auto;
+  }
+
+  main > aside:nth-of-type(2) > div:last-child {
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .district-label {
+    font-size: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  main > aside:first-of-type {
+    width: 175px;
+  }
+
+  main > aside:first-of-type > div:last-child {
+    max-height: 82px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
