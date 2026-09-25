@@ -329,82 +329,6 @@ function CityScene({
   snapshot: RepositorySnapshot;
   cameraKey: number;
 }) {
-  const repositoryQuery = useMemo(() => {
-    const cleaned = input
-      .trim()
-      .replace(/^https?:\/\/github\.com\//i, '')
-      .replace(/^github\.com\//i, '')
-      .replace(/^\/+/, '');
-    const separator = cleaned.indexOf('/');
-
-    if (separator <= 0) {
-      return null;
-    }
-
-    const owner = cleaned.slice(0, separator);
-    const term = cleaned.slice(separator + 1).toLowerCase();
-
-    if (!/^[A-Za-z0-9_.-]+$/.test(owner)) {
-      return null;
-    }
-
-    return { owner, term };
-  }, [input]);
-
-  useEffect(() => {
-    if (!repositoryQuery) {
-      setRepositoryOptions([]);
-      setRepositoryLoading(false);
-      return;
-    }
-
-    const cached = repositoryCache.current.get(repositoryQuery.owner);
-    if (cached) {
-      setRepositoryOptions(cached);
-      setRepositoryLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-    const timer = window.setTimeout(async () => {
-      setRepositoryLoading(true);
-
-      try {
-        const repositories = await listOwnerRepositories(repositoryQuery.owner);
-
-        if (cancelled) return;
-
-        repositoryCache.current.set(repositoryQuery.owner, repositories);
-        setRepositoryOptions(repositories);
-      } catch {
-        if (!cancelled) {
-          setRepositoryOptions([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setRepositoryLoading(false);
-        }
-      }
-    }, 220);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [repositoryQuery]);
-
-  const filteredRepositoryOptions = useMemo(() => {
-    if (!repositoryQuery) return [];
-
-    const term = repositoryQuery.term;
-
-    return repositoryOptions
-      .filter((repository) =>
-        !term || repository.name.toLowerCase().includes(term),
-      )
-      .slice(0, 9);
-  }, [repositoryOptions, repositoryQuery]);
-
   const model = useMemo(() => createCityModel(snapshot), [snapshot]);
   const dispatch = useAppDispatch();
   const query = useAppSelector((state) => state.cityUi.query)
@@ -521,6 +445,82 @@ export function DevCityApp() {
   const [notice, setNotice] = useState('DEMO CITY');
   const [error, setError] = useState<string | null>(null);
   const [cameraKey, setCameraKey] = useState(0);
+
+  const repositoryQuery = useMemo(() => {
+    const cleaned = input
+      .trim()
+      .replace(/^https?:\/\/github\.com\//i, '')
+      .replace(/^github\.com\//i, '')
+      .replace(/^\/+/, '');
+    const separator = cleaned.indexOf('/');
+
+    if (separator <= 0) {
+      return null;
+    }
+
+    const owner = cleaned.slice(0, separator);
+    const term = cleaned.slice(separator + 1).toLowerCase();
+
+    if (!/^[A-Za-z0-9_.-]+$/.test(owner)) {
+      return null;
+    }
+
+    return { owner, term };
+  }, [input]);
+
+  useEffect(() => {
+    if (!repositoryQuery) {
+      setRepositoryOptions([]);
+      setRepositoryLoading(false);
+      return;
+    }
+
+    const cached = repositoryCache.current.get(repositoryQuery.owner);
+    if (cached) {
+      setRepositoryOptions(cached);
+      setRepositoryLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      setRepositoryLoading(true);
+
+      try {
+        const repositories = await listOwnerRepositories(repositoryQuery.owner);
+
+        if (cancelled) return;
+
+        repositoryCache.current.set(repositoryQuery.owner, repositories);
+        setRepositoryOptions(repositories);
+      } catch {
+        if (!cancelled) {
+          setRepositoryOptions([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setRepositoryLoading(false);
+        }
+      }
+    }, 220);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [repositoryQuery]);
+
+  const filteredRepositoryOptions = useMemo(() => {
+    if (!repositoryQuery) return [];
+
+    const term = repositoryQuery.term;
+
+    return repositoryOptions
+      .filter((repository) =>
+        !term || repository.name.toLowerCase().includes(term),
+      )
+      .slice(0, 9);
+  }, [repositoryOptions, repositoryQuery]);
 
   const model = useMemo(() => createCityModel(snapshot), [snapshot]);
   const selected = model.buildings.find(
