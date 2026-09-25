@@ -48,7 +48,7 @@ canvas {
   border-radius: 5px;
   background: rgba(7, 9, 13, 0.62);
   font-family: var(--font-mono), monospace;
-  font-size: 6px;
+  font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.12em;
   white-space: nowrap;
@@ -173,7 +173,7 @@ canvas {
   .build-city-button {
     min-height: 36px;
     padding-inline: 11px;
-    font-size: 7px;
+    font-size: 13px;
     white-space: nowrap;
   }
 
@@ -218,7 +218,7 @@ canvas {
 
   .city-toolbar > div:first-child strong {
     max-width: 132px;
-    font-size: 10px;
+    font-size: 13px;
   }
 
   .city-toolbar-actions {
@@ -259,7 +259,7 @@ canvas {
 
   .district-label {
     padding: 2px 4px;
-    font-size: 5px;
+    font-size: 8px;
   }
 
   .mobile-navigation {
@@ -339,7 +339,7 @@ canvas {
     border: 1px solid rgba(181,255,85,.14);
     border-radius: 12px;
     background: rgba(10,13,19,.5);
-    font-size: 8px;
+    font-size: 11px;
   }
 
   .mobile-move-right {
@@ -372,7 +372,7 @@ canvas {
     width: 94px;
     color: rgba(161, 168, 181, .78);
     font-family: var(--font-mono), monospace;
-    font-size: 6px;
+    font-size: 12px;
     line-height: 1.45;
     text-transform: uppercase;
     letter-spacing: .07em;
@@ -438,7 +438,7 @@ canvas {
     border-radius: 7px;
     background: transparent;
     font-family: var(--font-mono), monospace;
-    font-size: 7px;
+    font-size: 13px;
     text-transform: uppercase;
     letter-spacing: .08em;
   }
@@ -504,12 +504,12 @@ canvas {
 
   .city-toolbar > div:first-child strong {
     max-width: 100px;
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .mobile-toolbar-button {
     padding-inline: 7px;
-    font-size: 6px;
+    font-size: 12px;
   }
 
   .mobile-navigation {
@@ -607,5 +607,143 @@ canvas {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Readability scale */
+.devcity-app {
+  font-size: 16px;
+}
+
+.devcity-brand strong {
+  font-size: 16px;
+}
+
+.devcity-brand small {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.repository-input {
+  font-size: 15px;
+}
+
+.build-city-button,
+.reset-view-button,
+.mobile-toolbar-button {
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.repository-options button strong {
+  font-size: 14px;
+}
+
+.repository-options button small {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.repository-options button > span:last-child {
+  font-size: 11px;
+}
+
+.city-toolbar strong {
+  font-size: 15px;
+}
+
+.city-toolbar .font-mono,
+.city-index-panel .font-mono,
+.building-inspector-panel .font-mono {
+  line-height: 1.35;
+}
+
+.city-index-panel input {
+  font-size: 14px;
+}
+
+.city-index-panel button {
+  font-size: 11px;
+}
+
+.building-inspector-panel h2 {
+  font-size: 20px;
+}
+
+.building-inspector-panel p {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.building-inspector-panel strong {
+  font-size: 14px;
+}
+
+.district-label {
+  font-size: 9px;
+}
+
+@media (max-width: 720px) {
+  .repository-input {
+    font-size: 16px;
+  }
+
+  .build-city-button {
+    font-size: 10px;
+  }
+
+  .city-toolbar > div:first-child strong {
+    font-size: 13px;
+  }
+
+  .mobile-toolbar-button {
+    font-size: 10px;
+  }
+
+  .district-label {
+    font-size: 8px;
+  }
+
+  .mobile-sheet-close {
+    font-size: 11px;
+  }
+
+  .mobile-color-modes button {
+    font-size: 10px;
+  }
+
+  .city-index-panel input {
+    font-size: 16px;
+  }
+
+  .city-index-panel button {
+    font-size: 12px;
+  }
+
+  .building-inspector-panel h2 {
+    font-size: 20px;
+  }
+
+  .building-inspector-panel p {
+    font-size: 14px;
+  }
+
+  .building-inspector-panel strong {
+    font-size: 15px;
+  }
+
+  .mobile-touch-hint {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 430px) {
+  .city-toolbar > div:first-child strong {
+    font-size: 12px;
+  }
+
+  .mobile-toolbar-button {
+    font-size: 9px;
   }
 }
