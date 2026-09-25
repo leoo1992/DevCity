@@ -647,7 +647,10 @@ export function DevCityApp() {
   };
 
   return (
-    <main className="devcity-app relative h-dvh min-h-[560px] overflow-hidden bg-[#07090d] text-zinc-100">
+    <main
+      className="devcity-app relative h-dvh overflow-hidden bg-[#07090d] text-zinc-100"
+      data-mobile-panel={mobilePanel}
+    >
       <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(125,114,255,.10),transparent_31%)]" />
 
       <header className="devcity-header absolute inset-x-0 top-0 z-40 border-b border-white/10 bg-[#080a0f]/88 backdrop-blur-xl">
@@ -890,7 +893,7 @@ export function DevCityApp() {
 
           <Canvas
             shadows
-            dpr={[1, 1.75]}
+            dpr={[1, 1.5]}
             camera={{
               position: [24, 23, 28],
               fov: 45,
