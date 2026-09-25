@@ -193,7 +193,7 @@ function CityNavigation({
 }) {
   const controlsRef = useRef<ComponentRef<typeof OrbitControls>>(null);
   const pressedKeys = useRef(new Set<string>());
-  const { camera } = useThree();
+  const { camera, gl } = useThree();
 
   useEffect(() => {
     const isTypingTarget = (target: EventTarget | null) =>
@@ -252,6 +252,82 @@ function CityNavigation({
     controls.target.set(0, 2.6, 0);
     controls.update();
   }, [camera, cameraKey]);
+
+  useEffect(() => {
+    const element = gl.domElement;
+    let previousAngle: number | null = null;
+
+    const readAngle = (touches: TouchList) => {
+      const first = touches.item(0);
+      const second = touches.item(1);
+
+      if (!first || !second) return null;
+
+      return Math.atan2(
+        second.clientY - first.clientY,
+        second.clientX - first.clientX,
+      );
+    };
+
+    const normalizeDelta = (value: number) => {
+      if (value > Math.PI) return value - Math.PI * 2;
+      if (value < -Math.PI) return value + Math.PI * 2;
+      return value;
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      previousAngle =
+        event.touches.length === 2 ? readAngle(event.touches) : null;
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length !== 2) {
+        previousAngle = null;
+        return;
+      }
+
+      const angle = readAngle(event.touches);
+      if (angle === null) return;
+
+      if (previousAngle === null) {
+        previousAngle = angle;
+        return;
+      }
+
+      const delta = normalizeDelta(angle - previousAngle);
+      previousAngle = angle;
+
+      if (Math.abs(delta) < 0.002) return;
+
+      const controls = controlsRef.current;
+      if (!controls) return;
+
+      const offset = camera.position.clone().sub(controls.target);
+      offset.applyAxisAngle(camera.up, -delta);
+
+      camera.position.copy(controls.target).add(offset);
+      camera.lookAt(controls.target);
+      controls.update();
+    };
+
+    const onTouchEnd = (event: TouchEvent) => {
+      previousAngle =
+        event.touches.length === 2 ? readAngle(event.touches) : null;
+    };
+
+    element.addEventListener('touchstart', onTouchStart, { passive: true });
+    element.addEventListener('touchmove', onTouchMove, { passive: true });
+    element.addEventListener('touchend', onTouchEnd, { passive: true });
+    element.addEventListener('touchcancel', onTouchEnd, { passive: true });
+
+    return () => {
+      element.removeEventListener('touchstart', onTouchStart);
+      element.removeEventListener('touchmove', onTouchMove);
+      element.removeEventListener('touchend', onTouchEnd);
+      element.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, [camera, gl]);
+
 
   useFrame((_, delta) => {
     const controls = controlsRef.current;
@@ -953,7 +1029,7 @@ export function DevCityApp() {
                 onChange={setNavigationIntent}
               />
             </div>
-            <span className="mobile-touch-hint">arraste: girar · pinça: zoom/pan</span>
+            <span className="mobile-touch-hint">1 dedo: orbitar · 2 dedos: zoom/pan · torça 2 dedos: girar no eixo</span>
           </div>
 
         </div>
