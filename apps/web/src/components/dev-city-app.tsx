@@ -960,7 +960,7 @@ export function DevCityApp() {
       </section>
 
       <aside
-        className="city-index-panel absolute bottom-4 left-4 z-40 w-[min(330px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e14]/88 shadow-2xl backdrop-blur-xl lg:bottom-6 lg:left-6"
+        className="city-index-panel absolute bottom-4 left-4 z-40 w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e14]/88 shadow-2xl backdrop-blur-xl lg:bottom-6 lg:left-6"
         data-mobile-open={mobilePanel === 'filters'}
       >
         <div className="border-b border-white/10 p-3.5">
@@ -1041,7 +1041,7 @@ export function DevCityApp() {
       </aside>
 
       <aside
-        className="building-inspector-panel absolute bottom-4 right-4 z-40 w-[min(350px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e14]/90 shadow-2xl backdrop-blur-xl lg:bottom-6 lg:right-6"
+        className="building-inspector-panel absolute bottom-4 right-4 z-40 w-[min(390px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e14]/90 shadow-2xl backdrop-blur-xl lg:bottom-6 lg:right-6"
         data-mobile-open={mobilePanel === 'inspector'}
       >
         <div className="flex items-start justify-between gap-4 border-b border-white/10 p-4">

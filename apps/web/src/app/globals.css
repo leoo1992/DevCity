@@ -230,7 +230,7 @@ canvas {
     min-height: 34px;
     align-items: center;
     padding-inline: 9px;
-    font-size: 6.5px;
+    font-size: 10px;
   }
 
   .reset-view-button {
@@ -245,7 +245,7 @@ canvas {
 
   .reset-view-button::after {
     content: "↺";
-    font-size: 15px;
+    font-size: 18px;
     line-height: 1;
   }
 
@@ -259,7 +259,7 @@ canvas {
 
   .district-label {
     padding: 2px 4px;
-    font-size: 8px;
+    font-size: 12px;
   }
 
   .mobile-navigation {
@@ -309,7 +309,7 @@ canvas {
       0 8px 26px rgba(0,0,0,.26),
       inset 0 1px 0 rgba(255,255,255,.04);
     backdrop-filter: blur(12px);
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 800;
     touch-action: none;
   }
@@ -362,7 +362,7 @@ canvas {
     width: 36px;
     height: 36px;
     border-radius: 11px;
-    font-size: 17px;
+    font-size: 20px;
   }
 
   .mobile-touch-hint {
@@ -626,7 +626,7 @@ canvas {
 }
 
 .repository-input {
-  font-size: 15px;
+  font-size: 18px;
 }
 
 .build-city-button,
@@ -650,7 +650,7 @@ canvas {
 }
 
 .city-toolbar strong {
-  font-size: 15px;
+  font-size: 18px;
 }
 
 .city-toolbar .font-mono,
@@ -681,7 +681,7 @@ canvas {
 }
 
 .district-label {
-  font-size: 9px;
+  font-size: 13px;
 }
 
 @media (max-width: 720px) {
@@ -690,7 +690,7 @@ canvas {
   }
 
   .build-city-button {
-    font-size: 10px;
+    font-size: 14px;
   }
 
   .city-toolbar > div:first-child strong {
@@ -698,11 +698,11 @@ canvas {
   }
 
   .mobile-toolbar-button {
-    font-size: 10px;
+    font-size: 14px;
   }
 
   .district-label {
-    font-size: 8px;
+    font-size: 12px;
   }
 
   .mobile-sheet-close {
@@ -710,7 +710,7 @@ canvas {
   }
 
   .mobile-color-modes button {
-    font-size: 10px;
+    font-size: 14px;
   }
 
   .city-index-panel input {
@@ -730,11 +730,11 @@ canvas {
   }
 
   .building-inspector-panel strong {
-    font-size: 15px;
+    font-size: 18px;
   }
 
   .mobile-touch-hint {
-    font-size: 9px;
+    font-size: 13px;
   }
 }
 
@@ -744,6 +744,58 @@ canvas {
   }
 
   .mobile-toolbar-button {
-    font-size: 9px;
+    font-size: 13px;
+  }
+}
+
+
+/* Readability scale */
+@media (min-width: 721px) {
+  .devcity-header-inner {
+    min-height: 78px;
+  }
+
+  .city-stage {
+    padding-top: 78px;
+  }
+
+  .city-toolbar {
+    top: 78px;
+    min-height: 70px;
+  }
+
+  .city-canvas-shell {
+    top: 148px;
+  }
+
+  .city-index-panel {
+    width: min(360px, calc(100vw - 32px));
+  }
+
+  .building-inspector-panel {
+    width: min(390px, calc(100vw - 32px));
+  }
+
+  .repository-options button {
+    min-height: 58px;
+  }
+}
+
+@media (max-width: 720px) {
+  .repository-options button {
+    min-height: 56px;
+  }
+
+  .city-index-panel,
+  .building-inspector-panel {
+    line-height: 1.5;
+  }
+
+  .mobile-move-button {
+    font-size: 18px;
+  }
+
+  .mobile-altitude .mobile-move-button {
+    font-size: 20px;
   }
 }
