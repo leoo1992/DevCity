@@ -1,8 +1,9 @@
 import {
   BadGatewayException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
-  TooManyRequestsException,
 } from '@nestjs/common';
 
 interface GitHubRepositoryResponse {
@@ -74,8 +75,9 @@ export class RepositoryService {
     }
 
     if (response.status === 403 || response.status === 429) {
-      throw new TooManyRequestsException(
+      throw new HttpException(
         'Limite da API do GitHub atingido. Configure GITHUB_TOKEN.',
+        HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 
