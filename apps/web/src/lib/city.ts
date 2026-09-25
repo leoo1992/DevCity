@@ -190,8 +190,6 @@ export function createCityModel(
   const districts: CityDistrict[] = [];
   const buildings: CityBuilding[] = [];
   const languageCounts = new Map<string, number>();
-  const maxSize = Math.max(...renderFiles.map((file) => file.size), 1);
-
   names.forEach((districtName, districtIndex) => {
     const files = grouped.get(districtName) ?? [];
     const buildingColumns = Math.max(2, Math.ceil(Math.sqrt(files.length)));

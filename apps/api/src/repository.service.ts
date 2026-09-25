@@ -14,6 +14,18 @@ interface GitHubRepositoryResponse {
   html_url: string;
 }
 
+interface GitHubOwnerRepositoryResponse {
+  name: string;
+  full_name: string;
+  description: string | null;
+  language: string | null;
+  stargazers_count: number;
+  updated_at: string;
+  html_url: string;
+  fork: boolean;
+  archived: boolean;
+}
+
 interface GitHubTreeResponse {
   truncated: boolean;
   tree: Array<{
@@ -88,6 +100,37 @@ export class RepositoryService {
     }
 
     return (await response.json()) as T;
+  }
+
+  async listRepositories(owner: string) {
+    const normalizedOwner = owner.trim();
+
+    if (!/^[A-Za-z0-9_.-]+$/.test(normalizedOwner)) {
+      throw new NotFoundException('Usuário do GitHub inválido.');
+    }
+
+    const repositories = await this.request<GitHubOwnerRepositoryResponse[]>(
+      'https://api.github.com/users/' +
+        encodeURIComponent(normalizedOwner) +
+        '/repos?per_page=100&sort=updated&type=owner',
+    );
+
+    return repositories
+      .map((repository) => ({
+        name: repository.name,
+        fullName: repository.full_name,
+        description: repository.description,
+        language: repository.language,
+        stars: repository.stargazers_count,
+        updatedAt: repository.updated_at,
+        url: repository.html_url,
+        fork: repository.fork,
+        archived: repository.archived,
+      }))
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+      );
   }
 
   async readRepository(input: string) {
