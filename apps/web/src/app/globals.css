@@ -48,7 +48,7 @@ canvas {
   border-radius: 5px;
   background: rgba(7, 9, 13, 0.62);
   font-family: var(--font-mono), monospace;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 750;
   letter-spacing: 0.12em;
   white-space: nowrap;
@@ -173,7 +173,7 @@ canvas {
   .build-city-button {
     min-height: 36px;
     padding-inline: 11px;
-    font-size: 13px;
+    font-size: 11px;
     white-space: nowrap;
   }
 
@@ -218,7 +218,7 @@ canvas {
 
   .city-toolbar > div:first-child strong {
     max-width: 132px;
-    font-size: 10px;
+    font-size: 14px;
   }
 
   .city-toolbar-actions {
@@ -230,7 +230,7 @@ canvas {
     min-height: 34px;
     align-items: center;
     padding-inline: 9px;
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .reset-view-button {
@@ -245,7 +245,7 @@ canvas {
 
   .reset-view-button::after {
     content: "↺";
-    font-size: 19px;
+    font-size: 18px;
     line-height: 1;
   }
 
@@ -259,7 +259,7 @@ canvas {
 
   .district-label {
     padding: 2px 4px;
-    font-size: 11px;
+    font-size: 9px;
   }
 
   .mobile-navigation {
@@ -309,7 +309,7 @@ canvas {
       0 8px 26px rgba(0,0,0,.26),
       inset 0 1px 0 rgba(255,255,255,.04);
     backdrop-filter: blur(12px);
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 800;
     touch-action: none;
   }
@@ -339,7 +339,7 @@ canvas {
     border: 1px solid rgba(181,255,85,.14);
     border-radius: 12px;
     background: rgba(10,13,19,.5);
-    font-size: 8px;
+    font-size: 12px;
   }
 
   .mobile-move-right {
@@ -362,7 +362,7 @@ canvas {
     width: 36px;
     height: 36px;
     border-radius: 11px;
-    font-size: 17px;
+    font-size: 20px;
   }
 
   .mobile-touch-hint {
@@ -372,7 +372,7 @@ canvas {
     width: 94px;
     color: rgba(161, 168, 181, .78);
     font-family: var(--font-mono), monospace;
-    font-size: 9px;
+    font-size: 10px;
     line-height: 1.45;
     text-transform: uppercase;
     letter-spacing: .07em;
@@ -438,7 +438,7 @@ canvas {
     border-radius: 7px;
     background: transparent;
     font-family: var(--font-mono), monospace;
-    font-size: 10px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: .08em;
   }
@@ -504,12 +504,12 @@ canvas {
 
   .city-toolbar > div:first-child strong {
     max-width: 100px;
-    font-size: 9px;
+    font-size: 13px;
   }
 
   .mobile-toolbar-button {
     padding-inline: 7px;
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .mobile-navigation {
@@ -639,18 +639,18 @@ canvas {
   }
 
   .repository-options button {
-    min-height: 56px;
+    min-height: 58px;
   }
 }
 
 @media (max-width: 720px) {
   .repository-options button {
-    min-height: 54px;
+    min-height: 56px;
   }
 
   .city-index-panel,
   .building-inspector-panel {
-    line-height: 1.45;
+    line-height: 1.5;
   }
 
   .mobile-move-button {
