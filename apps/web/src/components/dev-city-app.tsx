@@ -48,10 +48,12 @@ function Building({
   building,
   maxSize,
   visible,
+  onSelect,
 }: {
   building: CityBuilding;
   maxSize: number;
   visible: boolean;
+  onSelect: () => void;
 }) {
   const dispatch = useAppDispatch();
   const selectedPath = useAppSelector((state) => state.cityUi.selectedPath);
@@ -85,6 +87,7 @@ function Building({
         onClick={(event) => {
           event.stopPropagation();
           dispatch(selectBuilding(building.path));
+          onSelect();
         }}
         onPointerOver={handleOver}
         onPointerOut={handleOut}
@@ -167,7 +170,27 @@ function DistrictPlate({ district }: { district: CityDistrict }) {
   );
 }
 
-function CityNavigation({ cameraKey }: { cameraKey: number }) {
+interface NavigationIntent {
+  forward: number;
+  strafe: number;
+  vertical: number;
+  boost: boolean;
+}
+
+const IDLE_NAVIGATION: NavigationIntent = {
+  forward: 0,
+  strafe: 0,
+  vertical: 0,
+  boost: false,
+};
+
+function CityNavigation({
+  cameraKey,
+  navigationIntent,
+}: {
+  cameraKey: number;
+  navigationIntent: NavigationIntent;
+}) {
   const controlsRef = useRef<ComponentRef<typeof OrbitControls>>(null);
   const pressedKeys = useRef(new Set<string>());
   const { camera } = useThree();
@@ -232,9 +255,9 @@ function CityNavigation({ cameraKey }: { cameraKey: number }) {
 
   useFrame((_, delta) => {
     const controls = controlsRef.current;
-    if (!controls || pressedKeys.current.size === 0) return;
+    if (!controls) return;
 
-    const forwardAxis =
+    const keyboardForward =
       (pressedKeys.current.has('KeyW') ||
       pressedKeys.current.has('ArrowUp')
         ? 1
@@ -243,7 +266,7 @@ function CityNavigation({ cameraKey }: { cameraKey: number }) {
       pressedKeys.current.has('ArrowDown')
         ? 1
         : 0);
-    const strafeAxis =
+    const keyboardStrafe =
       (pressedKeys.current.has('KeyD') ||
       pressedKeys.current.has('ArrowRight')
         ? 1
@@ -252,9 +275,25 @@ function CityNavigation({ cameraKey }: { cameraKey: number }) {
       pressedKeys.current.has('ArrowLeft')
         ? 1
         : 0);
-    const verticalAxis =
+    const keyboardVertical =
       (pressedKeys.current.has('KeyE') ? 1 : 0) -
       (pressedKeys.current.has('KeyQ') ? 1 : 0);
+
+    const forwardAxis = THREE.MathUtils.clamp(
+      keyboardForward + navigationIntent.forward,
+      -1,
+      1,
+    );
+    const strafeAxis = THREE.MathUtils.clamp(
+      keyboardStrafe + navigationIntent.strafe,
+      -1,
+      1,
+    );
+    const verticalAxis = THREE.MathUtils.clamp(
+      keyboardVertical + navigationIntent.vertical,
+      -1,
+      1,
+    );
 
     if (forwardAxis === 0 && strafeAxis === 0 && verticalAxis === 0) {
       return;
@@ -287,6 +326,7 @@ function CityNavigation({ cameraKey }: { cameraKey: number }) {
     if (movement.lengthSq() === 0) return;
 
     const boosted =
+      navigationIntent.boost ||
       pressedKeys.current.has('ShiftLeft') ||
       pressedKeys.current.has('ShiftRight');
     const speed = (boosted ? 19 : 8.5) * delta;
@@ -325,9 +365,13 @@ function CityNavigation({ cameraKey }: { cameraKey: number }) {
 function CityScene({
   snapshot,
   cameraKey,
+  navigationIntent,
+  onSelectBuilding,
 }: {
   snapshot: RepositorySnapshot;
   cameraKey: number;
+  navigationIntent: NavigationIntent;
+  onSelectBuilding: () => void;
 }) {
   const model = useMemo(() => createCityModel(snapshot), [snapshot]);
   const dispatch = useAppDispatch();
@@ -389,6 +433,7 @@ function CityScene({
             building={building}
             maxSize={maxSize}
             visible={visible}
+            onSelect={onSelectBuilding}
           />
         );
       })}
@@ -403,8 +448,50 @@ function CityScene({
         <meshStandardMaterial color="#090c11" roughness={1} />
       </mesh>
 
-      <CityNavigation cameraKey={cameraKey} />
+      <CityNavigation
+        cameraKey={cameraKey}
+        navigationIntent={navigationIntent}
+      />
     </>
+  );
+}
+
+function MovementButton({
+  label,
+  className,
+  intent,
+  onChange,
+}: {
+  label: string;
+  className?: string;
+  intent: NavigationIntent;
+  onChange: (intent: NavigationIntent) => void;
+}) {
+  const start = (event: React.PointerEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    onChange(intent);
+  };
+
+  const stop = (event: React.PointerEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    onChange(IDLE_NAVIGATION);
+  };
+
+  return (
+    <button
+      type="button"
+      className={`mobile-move-button ${className ?? ''}`}
+      onPointerDown={start}
+      onPointerUp={stop}
+      onPointerCancel={stop}
+      aria-label={label}
+    >
+      {label}
+    </button>
   );
 }
 
@@ -445,6 +532,11 @@ export function DevCityApp() {
   const [notice, setNotice] = useState('DEMO CITY');
   const [error, setError] = useState<string | null>(null);
   const [cameraKey, setCameraKey] = useState(0);
+  const [mobilePanel, setMobilePanel] = useState<
+    'none' | 'filters' | 'inspector'
+  >('none');
+  const [navigationIntent, setNavigationIntent] =
+    useState<NavigationIntent>(IDLE_NAVIGATION);
 
   const repositoryQuery = useMemo(() => {
     const cleaned = input
@@ -555,14 +647,17 @@ export function DevCityApp() {
   };
 
   return (
-    <main className="relative h-dvh min-h-[620px] overflow-hidden bg-[#07090d] text-zinc-100">
+    <main
+      className="devcity-app relative h-dvh overflow-hidden bg-[#07090d] text-zinc-100"
+      data-mobile-panel={mobilePanel}
+    >
       <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(125,114,255,.10),transparent_31%)]" />
 
-      <header className="absolute inset-x-0 top-0 z-40 border-b border-white/10 bg-[#080a0f]/88 backdrop-blur-xl">
-        <div className="flex min-h-[72px] items-center gap-4 px-4 lg:px-6">
+      <header className="devcity-header absolute inset-x-0 top-0 z-40 border-b border-white/10 bg-[#080a0f]/88 backdrop-blur-xl">
+        <div className="devcity-header-inner flex min-h-[72px] items-center gap-4 px-4 lg:px-6">
           <a
             href="#"
-            className="flex min-w-0 shrink-0 items-center gap-3"
+            className="devcity-brand flex min-w-0 shrink-0 items-center gap-3"
             aria-label="DevCity"
           >
             <span className="relative grid size-10 place-items-center overflow-hidden rounded-xl border border-white/15 bg-white/[.03]">
@@ -570,7 +665,7 @@ export function DevCityApp() {
               <span className="absolute bottom-2 left-[17px] h-6 w-1.5 bg-[#7d72ff]" />
               <span className="absolute bottom-2 right-2 h-3 w-1.5 bg-[#ff7557]" />
             </span>
-            <span className="hidden sm:block">
+            <span className="devcity-brand-copy hidden sm:block">
               <strong className="block text-sm font-semibold tracking-[-.04em]">
                 DevCity
               </strong>
@@ -581,7 +676,7 @@ export function DevCityApp() {
           </a>
 
           <form
-            className="relative mx-auto flex min-w-0 max-w-2xl flex-1 items-center rounded-xl border border-white/10 bg-black/20 p-1"
+            className="repository-form relative mx-auto flex min-w-0 max-w-2xl flex-1 items-center rounded-xl border border-white/10 bg-black/20 p-1"
             onSubmit={(event) => {
               event.preventDefault();
               void analyze();
@@ -596,7 +691,7 @@ export function DevCityApp() {
               GITHUB /
             </span>
             <input
-              className="min-w-0 flex-1 bg-transparent px-2 py-2 text-[11px] text-white outline-none placeholder:text-zinc-600"
+              className="repository-input min-w-0 flex-1 bg-transparent px-2 py-2 text-[11px] text-white outline-none placeholder:text-zinc-600"
               value={input}
               onChange={(event) => {
                 setInput(event.target.value);
@@ -614,7 +709,7 @@ export function DevCityApp() {
               autoComplete="off"
             />
             <button
-              className="rounded-lg bg-[#b5ff55] px-4 py-2 text-[9px] font-bold uppercase tracking-[.08em] text-[#071006] transition hover:bg-[#c8ff7c] disabled:cursor-wait disabled:opacity-60"
+              className="build-city-button rounded-lg bg-[#b5ff55] px-4 py-2 text-[9px] font-bold uppercase tracking-[.08em] text-[#071006] transition hover:bg-[#c8ff7c] disabled:cursor-wait disabled:opacity-60"
               type="submit"
               disabled={loading}
             >
@@ -624,7 +719,7 @@ export function DevCityApp() {
             {repositoryMenuOpen && repositoryQuery ? (
               <div
                 id="repository-options"
-                className="absolute left-0 right-0 top-[calc(100%+8px)] z-[80] overflow-hidden rounded-xl border border-white/10 bg-[#0b0e14]/98 shadow-2xl backdrop-blur-xl"
+                className="repository-options absolute left-0 right-0 top-[calc(100%+8px)] z-[80] overflow-hidden rounded-xl border border-white/10 bg-[#0b0e14]/98 shadow-2xl backdrop-blur-xl"
               >
                 <div className="flex items-center justify-between gap-3 border-b border-white/[.08] px-3 py-2.5">
                   <span className="font-mono text-[7px] uppercase tracking-[.12em] text-zinc-500">
@@ -689,8 +784,8 @@ export function DevCityApp() {
         </div>
       </header>
 
-      <section className="absolute inset-0 pt-[72px]">
-        <div className="absolute inset-x-0 top-[72px] z-30 flex min-h-[64px] items-center justify-between gap-4 border-b border-white/[.07] bg-[#090b10]/75 px-4 backdrop-blur-md lg:px-6">
+      <section className="city-stage absolute inset-0 pt-[72px]">
+        <div className="city-toolbar absolute inset-x-0 top-[72px] z-30 flex min-h-[64px] items-center justify-between gap-4 border-b border-white/[.07] bg-[#090b10]/75 px-4 backdrop-blur-md lg:px-6">
           <div className="flex min-w-0 items-center gap-5">
             <div className="min-w-0">
               <span className="font-mono text-[7px] uppercase tracking-[.13em] text-zinc-500">
@@ -719,7 +814,7 @@ export function DevCityApp() {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="city-toolbar-actions flex shrink-0 items-center gap-2">
             <div className="hidden rounded-lg border border-white/10 bg-black/20 p-1 sm:flex">
               <button
                 className={
@@ -748,16 +843,44 @@ export function DevCityApp() {
             </div>
 
             <button
-              className="rounded-lg border border-white/10 bg-white/[.03] px-3 py-2 font-mono text-[7px] uppercase tracking-[.08em] text-zinc-400 transition hover:border-white/20 hover:text-white"
+              className="mobile-toolbar-button hidden rounded-lg border border-white/10 bg-white/[.03] px-3 py-2 font-mono text-[7px] uppercase tracking-[.08em] text-zinc-300"
               type="button"
-              onClick={() => setCameraKey((value) => value + 1)}
+              onClick={() =>
+                setMobilePanel((current) =>
+                  current === 'filters' ? 'none' : 'filters',
+                )
+              }
+              aria-expanded={mobilePanel === 'filters'}
+            >
+              Filtros
+            </button>
+            <button
+              className="mobile-toolbar-button hidden rounded-lg border border-white/10 bg-white/[.03] px-3 py-2 font-mono text-[7px] uppercase tracking-[.08em] text-zinc-300 disabled:opacity-35"
+              type="button"
+              disabled={!selected}
+              onClick={() =>
+                setMobilePanel((current) =>
+                  current === 'inspector' ? 'none' : 'inspector',
+                )
+              }
+              aria-expanded={mobilePanel === 'inspector'}
+            >
+              Arquivo
+            </button>
+            <button
+              className="reset-view-button rounded-lg border border-white/10 bg-white/[.03] px-3 py-2 font-mono text-[7px] uppercase tracking-[.08em] text-zinc-400 transition hover:border-white/20 hover:text-white"
+              type="button"
+              onClick={() => {
+                setNavigationIntent(IDLE_NAVIGATION);
+                setCameraKey((value) => value + 1);
+              }}
             >
               Reset view
             </button>
           </div>
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 top-[136px]">
+        <div className="city-canvas-shell absolute inset-x-0 bottom-0 top-[136px]">
           <div className="pointer-events-none absolute bottom-4 left-1/2 z-20 hidden -translate-x-1/2 rounded-xl border border-white/10 bg-[#090c12]/78 px-3 py-2 font-mono text-[7px] uppercase tracking-[.08em] text-zinc-500 shadow-xl backdrop-blur-md md:block">
             <span className="text-zinc-300">WASD / ARROWS</span> mover
             <i className="mx-2 text-zinc-700">·</i>
@@ -770,7 +893,7 @@ export function DevCityApp() {
 
           <Canvas
             shadows
-            dpr={[1, 1.75]}
+            dpr={[1, 1.5]}
             camera={{
               position: [24, 23, 28],
               fov: 45,
@@ -786,20 +909,92 @@ export function DevCityApp() {
             <CityScene
               snapshot={snapshot}
               cameraKey={cameraKey}
+              navigationIntent={navigationIntent}
+              onSelectBuilding={() => setMobilePanel('inspector')}
             />
           </Canvas>
+          <div className="mobile-navigation" aria-label="Controles móveis da cidade">
+            <div className="mobile-dpad">
+              <MovementButton
+                label="↑"
+                className="mobile-move-up"
+                intent={{ forward: 1, strafe: 0, vertical: 0, boost: false }}
+                onChange={setNavigationIntent}
+              />
+              <MovementButton
+                label="←"
+                className="mobile-move-left"
+                intent={{ forward: 0, strafe: -1, vertical: 0, boost: false }}
+                onChange={setNavigationIntent}
+              />
+              <span className="mobile-dpad-center" aria-hidden="true">◆</span>
+              <MovementButton
+                label="→"
+                className="mobile-move-right"
+                intent={{ forward: 0, strafe: 1, vertical: 0, boost: false }}
+                onChange={setNavigationIntent}
+              />
+              <MovementButton
+                label="↓"
+                className="mobile-move-down"
+                intent={{ forward: -1, strafe: 0, vertical: 0, boost: false }}
+                onChange={setNavigationIntent}
+              />
+            </div>
+            <div className="mobile-altitude">
+              <MovementButton
+                label="+"
+                intent={{ forward: 0, strafe: 0, vertical: 1, boost: false }}
+                onChange={setNavigationIntent}
+              />
+              <MovementButton
+                label="−"
+                intent={{ forward: 0, strafe: 0, vertical: -1, boost: false }}
+                onChange={setNavigationIntent}
+              />
+            </div>
+            <span className="mobile-touch-hint">arraste: girar · pinça: zoom/pan</span>
+          </div>
+
         </div>
       </section>
 
-      <aside className="absolute bottom-4 left-4 z-40 w-[min(330px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e14]/88 shadow-2xl backdrop-blur-xl lg:bottom-6 lg:left-6">
+      <aside
+        className="city-index-panel absolute bottom-4 left-4 z-40 w-[min(330px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e14]/88 shadow-2xl backdrop-blur-xl lg:bottom-6 lg:left-6"
+        data-mobile-open={mobilePanel === 'filters'}
+      >
         <div className="border-b border-white/10 p-3.5">
           <div className="flex items-center justify-between gap-3">
+            <button
+              className="mobile-sheet-close hidden font-mono text-[8px] text-zinc-500"
+              type="button"
+              onClick={() => setMobilePanel('none')}
+            >
+              FECHAR
+            </button>
             <span className="font-mono text-[7px] uppercase tracking-[.13em] text-zinc-500">
               CITY INDEX
             </span>
             <span className="font-mono text-[7px] text-zinc-600">
               {model.renderedFiles}/{model.totalFiles}
             </span>
+          </div>
+
+          <div className="mobile-color-modes hidden">
+            <button
+              type="button"
+              data-active={colorMode === 'language'}
+              onClick={() => dispatch(setColorMode('language'))}
+            >
+              Language
+            </button>
+            <button
+              type="button"
+              data-active={colorMode === 'size'}
+              onClick={() => dispatch(setColorMode('size'))}
+            >
+              Size heat
+            </button>
           </div>
 
           <label className="mt-3 flex items-center gap-2 rounded-lg border border-white/10 bg-black/25 px-2.5">
@@ -845,7 +1040,10 @@ export function DevCityApp() {
         </div>
       </aside>
 
-      <aside className="absolute bottom-4 right-4 z-40 w-[min(350px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e14]/90 shadow-2xl backdrop-blur-xl lg:bottom-6 lg:right-6">
+      <aside
+        className="building-inspector-panel absolute bottom-4 right-4 z-40 w-[min(350px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e14]/90 shadow-2xl backdrop-blur-xl lg:bottom-6 lg:right-6"
+        data-mobile-open={mobilePanel === 'inspector'}
+      >
         <div className="flex items-start justify-between gap-4 border-b border-white/10 p-4">
           <div className="min-w-0">
             <span className="font-mono text-[7px] uppercase tracking-[.13em] text-zinc-500">
@@ -860,7 +1058,10 @@ export function DevCityApp() {
             <button
               type="button"
               className="font-mono text-[8px] text-zinc-500 hover:text-white"
-              onClick={() => dispatch(selectBuilding(null))}
+              onClick={() => {
+                dispatch(selectBuilding(null));
+                setMobilePanel('none');
+              }}
             >
               CLOSE
             </button>
