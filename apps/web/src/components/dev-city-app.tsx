@@ -504,10 +504,10 @@ function Stat({
 }) {
   return (
     <div className="min-w-0 border-l border-white/10 pl-3 first:border-l-0 first:pl-0">
-      <strong className="block truncate text-sm font-semibold tracking-[-0.04em] text-white">
+      <strong className="block truncate text-base font-semibold tracking-[-0.04em] text-white">
         {value}
       </strong>
-      <span className="mt-0.5 block font-mono text-[8px] uppercase tracking-[0.12em] text-zinc-500">
+      <span className="mt-0.5 block font-mono text-[14px] uppercase tracking-[0.12em] text-zinc-500">
         {label}
       </span>
     </div>
@@ -666,10 +666,10 @@ export function DevCityApp() {
               <span className="absolute bottom-2 right-2 h-3 w-1.5 bg-[#ff7557]" />
             </span>
             <span className="devcity-brand-copy hidden sm:block">
-              <strong className="block text-sm font-semibold tracking-[-.04em]">
+              <strong className="block text-base font-semibold tracking-[-.04em]">
                 DevCity
               </strong>
-              <small className="block font-mono text-[7px] uppercase tracking-[.14em] text-zinc-500">
+              <small className="block font-mono text-[16px] uppercase tracking-[.14em] text-zinc-500">
                 repository urbanizer
               </small>
             </span>
@@ -687,11 +687,11 @@ export function DevCityApp() {
               }
             }}
           >
-            <span className="hidden px-2 font-mono text-[9px] text-[#b5ff55] md:block">
+            <span className="hidden px-2 font-mono text-[12px] text-[#b5ff55] md:block">
               GITHUB /
             </span>
             <input
-              className="repository-input min-w-0 flex-1 bg-transparent px-2 py-2 text-[11px] text-white outline-none placeholder:text-zinc-600"
+              className="repository-input min-w-0 flex-1 bg-transparent px-2 py-2 text-[14px] text-white outline-none placeholder:text-zinc-600"
               value={input}
               onChange={(event) => {
                 setInput(event.target.value);
@@ -709,7 +709,7 @@ export function DevCityApp() {
               autoComplete="off"
             />
             <button
-              className="build-city-button rounded-lg bg-[#b5ff55] px-4 py-2 text-[9px] font-bold uppercase tracking-[.08em] text-[#071006] transition hover:bg-[#c8ff7c] disabled:cursor-wait disabled:opacity-60"
+              className="build-city-button rounded-lg bg-[#b5ff55] px-4 py-2 text-[12px] font-bold uppercase tracking-[.08em] text-[#071006] transition hover:bg-[#c8ff7c] disabled:cursor-wait disabled:opacity-60"
               type="submit"
               disabled={loading}
             >
@@ -722,10 +722,10 @@ export function DevCityApp() {
                 className="repository-options absolute left-0 right-0 top-[calc(100%+8px)] z-[80] overflow-hidden rounded-xl border border-white/10 bg-[#0b0e14]/98 shadow-2xl backdrop-blur-xl"
               >
                 <div className="flex items-center justify-between gap-3 border-b border-white/[.08] px-3 py-2.5">
-                  <span className="font-mono text-[7px] uppercase tracking-[.12em] text-zinc-500">
+                  <span className="font-mono text-[16px] uppercase tracking-[.12em] text-zinc-500">
                     {repositoryQuery.owner} / repositories
                   </span>
-                  <span className="font-mono text-[7px] text-zinc-600">
+                  <span className="font-mono text-[16px] text-zinc-600">
                     {repositoryLoading
                       ? 'loading…'
                       : repositoryOptions.length + ' found'}
@@ -734,7 +734,7 @@ export function DevCityApp() {
 
                 <div className="max-h-[330px] overflow-y-auto p-1.5">
                   {repositoryLoading ? (
-                    <div className="px-3 py-5 text-center font-mono text-[8px] uppercase tracking-[.1em] text-zinc-600">
+                    <div className="px-3 py-5 text-center font-mono text-[14px] uppercase tracking-[.1em] text-zinc-600">
                       Buscando repositórios…
                     </div>
                   ) : filteredRepositoryOptions.length > 0 ? (
@@ -750,14 +750,14 @@ export function DevCityApp() {
                         }}
                       >
                         <span className="min-w-0">
-                          <strong className="block truncate text-[10px] text-white">
+                          <strong className="block truncate text-[16px] text-white">
                             {repository.name}
                           </strong>
-                          <small className="mt-1 block truncate text-[8px] text-zinc-500">
+                          <small className="mt-1 block truncate text-[14px] text-zinc-500">
                             {repository.description ?? 'Sem descrição'}
                           </small>
                         </span>
-                        <span className="flex items-center gap-2 font-mono text-[7px] text-zinc-500">
+                        <span className="flex items-center gap-2 font-mono text-[16px] text-zinc-500">
                           {repository.language ? (
                             <i className="not-italic text-zinc-400">
                               {repository.language}
@@ -768,7 +768,7 @@ export function DevCityApp() {
                       </button>
                     ))
                   ) : (
-                    <div className="px-3 py-5 text-center text-[9px] text-zinc-600">
+                    <div className="px-3 py-5 text-center text-[12px] text-zinc-600">
                       Nenhum repositório encontrado.
                     </div>
                   )}
@@ -777,7 +777,7 @@ export function DevCityApp() {
             ) : null}
           </form>
 
-          <div className="hidden items-center gap-2 font-mono text-[8px] uppercase tracking-[.1em] text-zinc-500 xl:flex">
+          <div className="hidden items-center gap-2 font-mono text-[14px] uppercase tracking-[.1em] text-zinc-500 xl:flex">
             <i className="size-1.5 rounded-full bg-[#b5ff55] shadow-[0_0_14px_#b5ff55]" />
             {notice}
           </div>
@@ -788,18 +788,18 @@ export function DevCityApp() {
         <div className="city-toolbar absolute inset-x-0 top-[72px] z-30 flex min-h-[64px] items-center justify-between gap-4 border-b border-white/[.07] bg-[#090b10]/75 px-4 backdrop-blur-md lg:px-6">
           <div className="flex min-w-0 items-center gap-5">
             <div className="min-w-0">
-              <span className="font-mono text-[7px] uppercase tracking-[.13em] text-zinc-500">
+              <span className="font-mono text-[16px] uppercase tracking-[.13em] text-zinc-500">
                 ACTIVE REPOSITORY
               </span>
               <div className="mt-1 flex min-w-0 items-center gap-2">
-                <strong className="truncate text-[13px] tracking-[-.03em] text-white">
+                <strong className="truncate text-[16px] tracking-[-.03em] text-white">
                   {snapshot.owner}/{snapshot.repo}
                 </strong>
                 <a
                   href={snapshot.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="font-mono text-[8px] text-[#7d72ff] hover:text-white"
+                  className="font-mono text-[14px] text-[#7d72ff] hover:text-white"
                 >
                   ↗
                 </a>
@@ -818,7 +818,7 @@ export function DevCityApp() {
             <div className="hidden rounded-lg border border-white/10 bg-black/20 p-1 sm:flex">
               <button
                 className={
-                  'rounded-md px-2.5 py-1.5 font-mono text-[7px] uppercase tracking-[.08em] transition ' +
+                  'rounded-md px-2.5 py-1.5 font-mono text-[16px] uppercase tracking-[.08em] transition ' +
                   (colorMode === 'language'
                     ? 'bg-white/10 text-white'
                     : 'text-zinc-500 hover:text-white')
@@ -830,7 +830,7 @@ export function DevCityApp() {
               </button>
               <button
                 className={
-                  'rounded-md px-2.5 py-1.5 font-mono text-[7px] uppercase tracking-[.08em] transition ' +
+                  'rounded-md px-2.5 py-1.5 font-mono text-[16px] uppercase tracking-[.08em] transition ' +
                   (colorMode === 'size'
                     ? 'bg-white/10 text-white'
                     : 'text-zinc-500 hover:text-white')
@@ -843,7 +843,7 @@ export function DevCityApp() {
             </div>
 
             <button
-              className="mobile-toolbar-button hidden rounded-lg border border-white/10 bg-white/[.03] px-3 py-2 font-mono text-[7px] uppercase tracking-[.08em] text-zinc-300"
+              className="mobile-toolbar-button hidden rounded-lg border border-white/10 bg-white/[.03] px-3 py-2 font-mono text-[16px] uppercase tracking-[.08em] text-zinc-300"
               type="button"
               onClick={() =>
                 setMobilePanel((current) =>
@@ -855,7 +855,7 @@ export function DevCityApp() {
               Filtros
             </button>
             <button
-              className="mobile-toolbar-button hidden rounded-lg border border-white/10 bg-white/[.03] px-3 py-2 font-mono text-[7px] uppercase tracking-[.08em] text-zinc-300 disabled:opacity-35"
+              className="mobile-toolbar-button hidden rounded-lg border border-white/10 bg-white/[.03] px-3 py-2 font-mono text-[16px] uppercase tracking-[.08em] text-zinc-300 disabled:opacity-35"
               type="button"
               disabled={!selected}
               onClick={() =>
@@ -868,7 +868,7 @@ export function DevCityApp() {
               Arquivo
             </button>
             <button
-              className="reset-view-button rounded-lg border border-white/10 bg-white/[.03] px-3 py-2 font-mono text-[7px] uppercase tracking-[.08em] text-zinc-400 transition hover:border-white/20 hover:text-white"
+              className="reset-view-button rounded-lg border border-white/10 bg-white/[.03] px-3 py-2 font-mono text-[16px] uppercase tracking-[.08em] text-zinc-400 transition hover:border-white/20 hover:text-white"
               type="button"
               onClick={() => {
                 setNavigationIntent(IDLE_NAVIGATION);
@@ -881,7 +881,7 @@ export function DevCityApp() {
         </div>
 
         <div className="city-canvas-shell absolute inset-x-0 bottom-0 top-[136px]">
-          <div className="pointer-events-none absolute bottom-4 left-1/2 z-20 hidden -translate-x-1/2 rounded-xl border border-white/10 bg-[#090c12]/78 px-3 py-2 font-mono text-[7px] uppercase tracking-[.08em] text-zinc-500 shadow-xl backdrop-blur-md md:block">
+          <div className="pointer-events-none absolute bottom-4 left-1/2 z-20 hidden -translate-x-1/2 rounded-xl border border-white/10 bg-[#090c12]/78 px-3 py-2 font-mono text-[16px] uppercase tracking-[.08em] text-zinc-500 shadow-xl backdrop-blur-md md:block">
             <span className="text-zinc-300">WASD / ARROWS</span> mover
             <i className="mx-2 text-zinc-700">·</i>
             <span className="text-zinc-300">Q / E</span> altura
@@ -966,16 +966,16 @@ export function DevCityApp() {
         <div className="border-b border-white/10 p-3.5">
           <div className="flex items-center justify-between gap-3">
             <button
-              className="mobile-sheet-close hidden font-mono text-[8px] text-zinc-500"
+              className="mobile-sheet-close hidden font-mono text-[14px] text-zinc-500"
               type="button"
               onClick={() => setMobilePanel('none')}
             >
               FECHAR
             </button>
-            <span className="font-mono text-[7px] uppercase tracking-[.13em] text-zinc-500">
+            <span className="font-mono text-[16px] uppercase tracking-[.13em] text-zinc-500">
               CITY INDEX
             </span>
-            <span className="font-mono text-[7px] text-zinc-600">
+            <span className="font-mono text-[16px] text-zinc-600">
               {model.renderedFiles}/{model.totalFiles}
             </span>
           </div>
@@ -1000,7 +1000,7 @@ export function DevCityApp() {
           <label className="mt-3 flex items-center gap-2 rounded-lg border border-white/10 bg-black/25 px-2.5">
             <span className="text-zinc-600">⌕</span>
             <input
-              className="min-w-0 flex-1 bg-transparent py-2 text-[10px] text-white outline-none placeholder:text-zinc-600"
+              className="min-w-0 flex-1 bg-transparent py-2 text-[16px] text-white outline-none placeholder:text-zinc-600"
               value={query}
               onChange={(event) => dispatch(setQuery(event.target.value))}
               placeholder="Filtrar arquivos…"
@@ -1019,7 +1019,7 @@ export function DevCityApp() {
                   type="button"
                   onClick={() => dispatch(toggleLanguage(item.language))}
                   className={
-                    'inline-flex items-center gap-1.5 rounded-md border px-2 py-1.5 font-mono text-[7px] transition ' +
+                    'inline-flex items-center gap-1.5 rounded-md border px-2 py-1.5 font-mono text-[16px] transition ' +
                     (hidden
                       ? 'border-white/[.05] text-zinc-700'
                       : 'border-white/10 text-zinc-300 hover:border-white/20')
@@ -1046,10 +1046,10 @@ export function DevCityApp() {
       >
         <div className="flex items-start justify-between gap-4 border-b border-white/10 p-4">
           <div className="min-w-0">
-            <span className="font-mono text-[7px] uppercase tracking-[.13em] text-zinc-500">
+            <span className="font-mono text-[16px] uppercase tracking-[.13em] text-zinc-500">
               BUILDING INSPECTOR
             </span>
-            <h2 className="mt-1 truncate text-[15px] font-semibold tracking-[-.04em] text-white">
+            <h2 className="mt-1 truncate text-[18px] font-semibold tracking-[-.04em] text-white">
               {selected?.name ?? 'Select a building'}
             </h2>
           </div>
@@ -1057,7 +1057,7 @@ export function DevCityApp() {
           {selected ? (
             <button
               type="button"
-              className="font-mono text-[8px] text-zinc-500 hover:text-white"
+              className="font-mono text-[14px] text-zinc-500 hover:text-white"
               onClick={() => {
                 dispatch(selectBuilding(null));
                 setMobilePanel('none');
@@ -1070,46 +1070,46 @@ export function DevCityApp() {
 
         {selected ? (
           <div className="space-y-4 p-4">
-            <p className="break-all font-mono text-[9px] leading-5 text-zinc-400">
+            <p className="break-all font-mono text-[12px] leading-5 text-zinc-400">
               {selected.path}
             </p>
 
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-lg border border-white/[.08] bg-white/[.025] p-2.5">
-                <span className="block font-mono text-[6px] uppercase tracking-[.1em] text-zinc-600">
+                <span className="block font-mono text-[12px] uppercase tracking-[.1em] text-zinc-600">
                   HEIGHT
                 </span>
-                <strong className="mt-1 block text-[11px] text-white">
+                <strong className="mt-1 block text-[14px] text-white">
                   {selected.dimensions[1].toFixed(1)}
                 </strong>
               </div>
               <div className="rounded-lg border border-white/[.08] bg-white/[.025] p-2.5">
-                <span className="block font-mono text-[6px] uppercase tracking-[.1em] text-zinc-600">
+                <span className="block font-mono text-[12px] uppercase tracking-[.1em] text-zinc-600">
                   SIZE
                 </span>
-                <strong className="mt-1 block text-[11px] text-white">
+                <strong className="mt-1 block text-[14px] text-white">
                   {formatBytes(selected.size)}
                 </strong>
               </div>
               <div className="rounded-lg border border-white/[.08] bg-white/[.025] p-2.5">
-                <span className="block font-mono text-[6px] uppercase tracking-[.1em] text-zinc-600">
+                <span className="block font-mono text-[12px] uppercase tracking-[.1em] text-zinc-600">
                   TYPE
                 </span>
-                <strong className="mt-1 block truncate text-[11px] text-white">
+                <strong className="mt-1 block truncate text-[14px] text-white">
                   {selected.extension || 'file'}
                 </strong>
               </div>
             </div>
 
             <div className="flex items-center justify-between gap-3 border-t border-white/[.08] pt-3">
-              <span className="inline-flex items-center gap-2 font-mono text-[8px] text-zinc-400">
+              <span className="inline-flex items-center gap-2 font-mono text-[14px] text-zinc-400">
                 <i
                   className="size-2 rounded-full"
                   style={{ background: selected.color }}
                 />
                 {selected.language}
               </span>
-              <span className="font-mono text-[7px] uppercase tracking-[.1em] text-zinc-600">
+              <span className="font-mono text-[16px] uppercase tracking-[.1em] text-zinc-600">
                 DISTRICT / {selected.district}
               </span>
             </div>
@@ -1118,10 +1118,10 @@ export function DevCityApp() {
           <div className="p-4">
             <div className="grid min-h-[105px] place-items-center rounded-xl border border-dashed border-white/10 bg-white/[.015] text-center">
               <div>
-                <span className="mx-auto grid size-8 place-items-center rounded-full bg-[#b5ff55] text-[10px] text-[#071006]">
+                <span className="mx-auto grid size-8 place-items-center rounded-full bg-[#b5ff55] text-[16px] text-[#071006]">
                   ↖
                 </span>
-                <p className="mt-2 text-[9px] leading-4 text-zinc-500">
+                <p className="mt-2 text-[12px] leading-4 text-zinc-500">
                   Clique em qualquer prédio para inspecionar o arquivo.
                 </p>
               </div>
@@ -1134,10 +1134,10 @@ export function DevCityApp() {
         <div className="absolute inset-0 z-50 grid place-items-center bg-[#07090d]/55 backdrop-blur-sm">
           <div className="rounded-2xl border border-white/10 bg-[#0d1017] px-7 py-6 text-center shadow-2xl">
             <span className="city-loader mx-auto block" />
-            <strong className="mt-4 block text-sm tracking-[-.03em]">
+            <strong className="mt-4 block text-base tracking-[-.03em]">
               Urbanizando repositório
             </strong>
-            <small className="mt-1 block font-mono text-[7px] uppercase tracking-[.13em] text-zinc-500">
+            <small className="mt-1 block font-mono text-[16px] uppercase tracking-[.13em] text-zinc-500">
               reading tree / zoning / extruding
             </small>
           </div>
@@ -1145,12 +1145,12 @@ export function DevCityApp() {
       ) : null}
 
       {error ? (
-        <div className="absolute left-1/2 top-[148px] z-50 w-[min(480px,calc(100vw-32px))] -translate-x-1/2 rounded-xl border border-red-400/20 bg-red-950/80 p-3 text-[10px] text-red-100 shadow-2xl backdrop-blur-md">
+        <div className="absolute left-1/2 top-[148px] z-50 w-[min(480px,calc(100vw-32px))] -translate-x-1/2 rounded-xl border border-red-400/20 bg-red-950/80 p-3 text-[16px] text-red-100 shadow-2xl backdrop-blur-md">
           <div className="flex items-start justify-between gap-4">
             <p className="m-0 leading-5">{error}</p>
             <button
               type="button"
-              className="font-mono text-[8px] text-red-300"
+              className="font-mono text-[14px] text-red-300"
               onClick={() => setError(null)}
             >
               CLOSE
